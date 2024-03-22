@@ -12,11 +12,21 @@ collection = database.todo
 
 
 async def test_db_conn():
-    response = f"<h1>Database Connection Details:</h1>\n"
-    response += f"<p><b>Connection String:</b> {conn_string}</p>\n"
-    response += f"<p><b>Database Name:</b> {database}</p>\n"
-    response += f"<p><b>Collection Name:</b> {collection}</p>"
-    return HTMLResponse(content=response, status_code=200)
+    try:
+        await client.server_info()  # Try to get server info, which verifies the connection
+        return "Database connection successful!"
+    except Exception as e:
+        error_message = str(e)
+        if "bad auth" in error_message:
+            return "Database authentication failed. Please check your username and password."
+        elif "No suitable servers" in error_message:
+            return "Unable to connect to the database server. Please check your network connection or database URI."
+        elif "timed out" in error_message:
+            return "Connection to the database server timed out. Please ensure that the server is reachable and try again."
+        elif "SSL handshake failed" in error_message:
+            return "The API server's IP address is not authorized to access the database. Please check the MongoDB Atlas IP whitelist settings."
+        else:
+            return f"Database connection failed: {error_message}"
 
 
 
