@@ -35,7 +35,7 @@ async def print_db_details():
     responce = await test_db_conn()
     return responce
 
-@app.get("/api/todo/{title}/" ,response_model=Todo )
+@app.get("/api/todo/{title}" ,response_model=Todo )
 async def get_todo_title(title):
     responce = await fetch_one_todo(title)
     if responce:
@@ -43,7 +43,7 @@ async def get_todo_title(title):
     raise HTTPException(404 , f"There is no todo with the title {title} ")
 
 
-@app.get("/api/todo/", response_model=list[Todo])
+@app.get("/api/todo", response_model=list[Todo])
 async def get_all_todos():
     try:
         response = await fetch_all_todos()
@@ -52,7 +52,7 @@ async def get_all_todos():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post('/api/todo/' , response_model=Todo)
+@app.post('/api/todo' , response_model=Todo)
 async def post_todo(todo:Todo):
     responce = await create_todo(todo.model_dump())
     if responce:
@@ -61,7 +61,7 @@ async def post_todo(todo:Todo):
 
 
 
-@app.put("/api/todo/update/{title}/" , response_model=Todo)
+@app.put("/api/todo/update/{title}" , response_model=Todo)
 async def put_todo(title :str , desc:str):
     responce = await update_todo(title , desc)
     if responce:
@@ -69,7 +69,7 @@ async def put_todo(title :str , desc:str):
     raise HTTPException(404 , f"There is no todo with the title {title} ")
 
 
-@app.delete("/api/todo/{title}/")
+@app.delete("/api/todo/{title}")
 async def delete_todo_by_title(title: str):
     try:
         response = await delete_todo(title)
