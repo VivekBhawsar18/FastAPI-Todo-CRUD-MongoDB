@@ -35,7 +35,7 @@ async def print_db_details():
     responce = await test_db_conn()
     return responce
 
-@app.get("/api/todo/{title}" ,response_model=Todo )
+@app.get("/api/todo/{title}/" ,response_model=Todo )
 async def get_todo_title(title):
     responce = await fetch_one_todo(title)
     if responce:
@@ -61,7 +61,7 @@ async def post_todo(todo:Todo):
 
 
 
-@app.put("/api/todo/{title}/" , response_model=Todo)
+@app.put("/api/todo/update/{title}/" , response_model=Todo)
 async def put_todo(title :str , desc:str):
     responce = await update_todo(title , desc)
     if responce:
