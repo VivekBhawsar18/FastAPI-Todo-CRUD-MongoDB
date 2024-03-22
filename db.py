@@ -29,18 +29,32 @@ async def test_db_conn():
             return f"Database connection failed: {error_message}"
 
 
+async def fetch_all_todos():
+    todos = []
+    async for todo in collection.find():
+        todos.append(Todo(**todo))
+    return todos
 
+
+async def fetch_one_todo(title):
+    document = await collection.find_one({"title" : title})
+    return document
 
 async def create_todo(todo):
     document = todo
     result = await collection.insert_one(document)
     return document
 
-async def fetch_one_todo(title):
-    document = await collection.find_one({"title" : title})
-    return document
 
 async def update_todo(title , desc):
     await collection.update_one({"title" : title} , {"$set" : {"description" :desc}})
     documnet = await collection.find_one({"title" : title})
     return documnet
+
+
+async def delete_todo(title):
+    result = await collection.delete_one({"title": title})
+    if result.deleted_count == 1:
+        return True
+    else:
+        return False
