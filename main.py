@@ -1,3 +1,4 @@
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI , HTTPException
 from dotenv import load_dotenv
 from pathlib import Path
@@ -19,6 +20,15 @@ load_dotenv(dotenv_path=env_path)
 
 
 app = FastAPI()
+
+# CORS (Cross-Origin Resource Sharing) Middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow requests from all origins
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 async def print_db_details():
