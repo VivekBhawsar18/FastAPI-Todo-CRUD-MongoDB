@@ -1,81 +1,65 @@
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI , HTTPException
+from fastapi import FastAPI, HTTPException
 from dotenv import load_dotenv
 from pathlib import Path
 from model import Todo
-# import os
-
 from db import (
-    test_db_conn ,
+    test_db_conn,
     fetch_all_todos,
-    fetch_one_todo, 
-    create_todo ,
-    update_todo ,
+    fetch_one_todo,
+    create_todo,
+    update_todo,
     delete_todo
-) 
-
+)
 
 env_path = Path('.') / '.env'
 load_dotenv(dotenv_path=env_path)
 
-
 app = FastAPI()
 
-# CORS (Cross-Origin Resource Sharing) Middleware
+# CORS Middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow requests from all origins
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["*"],
 )
 
-@app.get("/")
-async def print_db_details():
-    responce = await test_db_conn()
-    return responce
+# Route to test database connection
+@app.get("/test-db")
+async def test_database_connection():
+    return await test_db_conn()
 
-@app.get("/api/todo/{title}" ,response_model=Todo )
-async def get_todo_title(title):
-    responce = await fetch_one_todo(title)
-    if responce:
-        return responce
-    raise HTTPException(404 , f"There is no todo with the title {title} ")
+# Get todo by title
+@app.get("/api/todo/{title}", response_model=Todo)
+async def get_todo_by_title(title: str):
+    todo = await fetch_one_todo(title)
+    if todo:
+        return todo
+    else:
+        raise HTTPException(status_code=404, detail=f"No todo found with title: {title}")
 
-
-@app.get("/api/todo", response_model=list[Todo])
+# Get all todos
+@app.get("/api/todos", response_model=list[Todo])
 async def get_all_todos():
-    try:
-        response = await fetch_all_todos()
-        return response
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    return await fetch_all_todos()
 
+# Create a new todo
+@app.post('/api/todo', response_model=Todo)
+async def create_new_todo(todo: Todo):
+    return await create_todo(todo.model_dump())
 
-@app.post('/api/todo' , response_model=Todo)
-async def post_todo(todo:Todo):
-    responce = await create_todo(todo.model_dump())
-    if responce:
-        return responce
-    raise HTTPException(400 , "Something went wrong")
+# Update todo by title
+@app.put("/api/todo/{title}/update", response_model=Todo)
+async def update_todo_by_title(title: str, new_description: str):
+    return await update_todo(title, new_description)
 
-
-
-@app.put("/api/todo/update/{title}" , response_model=Todo)
-async def put_todo(title :str , desc:str):
-    responce = await update_todo(title , desc)
-    if responce:
-        return responce
-    raise HTTPException(404 , f"There is no todo with the title {title} ")
-
-
-@app.delete("/api/todo/{title}")
+# Delete todo by title
+@app.delete("/api/todo/{title}/delete")
 async def delete_todo_by_title(title: str):
-    try:
-        response = await delete_todo(title)
-        if response:
-            return {"message": f"Todo with title '{title}' deleted successfully"}
-        else:
-            raise HTTPException(status_code=404, detail=f"There is no todo with the title {title}")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    deleted = await delete_todo(title)
+    if deleted:
+        return {"message": f"Todo with title '{title}' deleted successfully"}
+    else:
+        raise HTTPException(status_code=404, detail=f"No todo found with title: {title}")
