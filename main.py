@@ -51,12 +51,12 @@ async def create_new_todo(todo: Todo):
     return await create_todo(todo.model_dump())
 
 # Update todo by title
-@app.put("/api/todo/{title}/update", response_model=Todo)
+@app.put("/api/todo/update/{title}", response_model=Todo)
 async def update_todo_by_title(title: str, new_description: str):
     return await update_todo(title, new_description)
 
 # Delete todo by title
-@app.delete("/api/todo/{title}/delete")
+@app.delete("/api/todo/delete/{title}")
 async def delete_todo_by_title(title: str):
     deleted = await delete_todo(title)
     if deleted:
