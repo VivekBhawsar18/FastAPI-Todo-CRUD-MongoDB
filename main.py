@@ -43,17 +43,28 @@ async def get_todo_by_title(title: str):
 # Get all todos
 @app.get("/api/todos", response_model=list[Todo])
 async def get_all_todos():
-    return await fetch_all_todos()
+    try:
+        response = await fetch_all_todos()
+        return response
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 # Create a new todo
 @app.post('/api/todo', response_model=Todo)
 async def create_new_todo(todo: Todo):
-    return await create_todo(todo.model_dump())
+    try:
+        responce = await create_todo(todo.model_dump())
+        return responce
+    except Exception as e:
+        raise HTTPException(status_code=500 , detail=str(e))
 
 # Update todo by title
 @app.put("/api/todo/update/{title}", response_model=Todo)
-async def update_todo_by_title(title: str, description: str):
-    return await update_todo(title, description)
+async def update_todo_by_title(title :str , desc:str):
+    responce = await update_todo(title , desc)
+    if responce:
+        return responce
+    raise HTTPException(404 , f"There is no todo with the title {title} ")
 
 # Delete todo by title
 @app.delete("/api/todo/delete/{title}")
