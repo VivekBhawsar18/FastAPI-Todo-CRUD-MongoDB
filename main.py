@@ -32,7 +32,7 @@ async def test_database_connection():
     try:
         response = await test_db_conn()
         return response
-     except Exception as e:
+    except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 # Get todo by title
