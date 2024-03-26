@@ -43,7 +43,7 @@ async def get_todo_by_title(title: str):
         if todo:
             return todo
     except Exception as e:
-        raise HTTPException(status_code=404, detail=f"No todo found with title: {title}")
+        raise HTTPException(status_code=404, detail=f"No todo found with title: {title} . {e}")
 
 
 # Get all todos
