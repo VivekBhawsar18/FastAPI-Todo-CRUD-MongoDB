@@ -29,16 +29,22 @@ app.add_middleware(
 # Route to test database connection
 @app.get("/test-db")
 async def test_database_connection():
-    return await test_db_conn()
+    try:
+        response = await test_db_conn()
+        return response
+     except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 # Get todo by title
 @app.get("/api/todo/{title}", response_model=Todo)
 async def get_todo_by_title(title: str):
-    todo = await fetch_one_todo(title)
-    if todo:
-        return todo
-    else:
+    try:
+        todo = await fetch_one_todo(title)
+        if todo:
+            return todo
+    except Exception as e:
         raise HTTPException(status_code=404, detail=f"No todo found with title: {title}")
+
 
 # Get all todos
 @app.get("/api/todos", response_model=list[Todo])
@@ -61,10 +67,12 @@ async def create_new_todo(todo: Todo):
 # Update todo by title
 @app.put("/api/todo/update/{title}", response_model=Todo)
 async def update_todo_by_title(title :str , desc:str):
-    responce = await update_todo(title , desc)
-    if responce:
-        return responce
-    raise HTTPException(404 , f"There is no todo with the title {title} ")
+    try:
+        responce = await update_todo(title , desc)
+        if responce:
+            return responce
+    except Exception as e:
+        raise HTTPException(404 , f"There is no todo with the title {title} . {e}")
 
 # Delete todo by title
 @app.delete("/api/todo/delete/{title}")
