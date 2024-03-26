@@ -1,6 +1,8 @@
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, HTTPException
 from dotenv import load_dotenv
+from fastapi.responses import HTMLResponse
+from typing import Dict
 from pathlib import Path
 from model import Todo
 from db import (
@@ -16,6 +18,31 @@ env_path = Path('.') / '.env'
 load_dotenv(dotenv_path=env_path)
 
 app = FastAPI()
+
+# Root route for documentation
+@app.get("/", response_class=HTMLResponse)
+async def root():
+    # HTML content with route descriptions
+    content = """
+    <html>
+        <head>
+            <title>API Documentation</title>
+        </head>
+        <body>
+            <h1>Welcome to the API Documentation</h1>
+            <p>This is the documentation for your FastAPI application.</p>
+            <h2>Available Routes:</h2>
+            <p><strong>/test-db</strong>: Test the database connection.</p>
+            <p><strong>/api/todo/{title}</strong>: Get a todo by its title.</p>
+            <p><strong>/api/todos</strong>: Get all todos.</p>
+            <p><strong>/api/todo</strong>: Create a new todo.</p>
+            <p><strong>/api/todo/update/{title}</strong>: Update a todo by its title.</p>
+            <p><strong>/api/todo/delete/{title}</strong>: Delete a todo by its title.</p>
+        </body>
+    </html>
+    """
+    return content
+
 
 # CORS Middleware
 app.add_middleware(
@@ -77,8 +104,11 @@ async def update_todo_by_title(title :str , desc:str):
 # Delete todo by title
 @app.delete("/api/todo/delete/{title}")
 async def delete_todo_by_title(title: str):
-    deleted = await delete_todo(title)
-    if deleted:
-        return {"message": f"Todo with title '{title}' deleted successfully"}
-    else:
-        raise HTTPException(status_code=404, detail=f"No todo found with title: {title}")
+    try:
+        deleted = await delete_todo(title)
+        if deleted:
+            return {"message": f"Todo with title '{title}' deleted successfully"}
+        else:
+            raise HTTPException(status_code=404, detail=f"No todo found with title: {title}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An error occurred while deleting todo: {str(e)}")
