@@ -19,6 +19,16 @@ load_dotenv(dotenv_path=env_path)
 
 app = FastAPI()
 
+# CORS Middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_headers=["*"],
+)
+
+
 # Root route for documentation
 @app.get("/", response_class=HTMLResponse)
 async def root():
@@ -44,14 +54,6 @@ async def root():
     return content
 
 
-# CORS Middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE"],
-    allow_headers=["*"],
-)
 
 # Route to test database connection
 @app.get("/test-db")
