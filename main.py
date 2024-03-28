@@ -95,9 +95,9 @@ async def create_new_todo(todo: Todo):
 
 # Update todo by title
 @app.put("/api/todo/update/{title}", response_model=Todo)
-async def update_todo_by_title(title :str , desc:str):
+async def update_todo_by_title(title , todo:Todo):
     try:
-        responce = await update_todo(title , desc)
+        responce = await update_todo(title , todo.description)
         if responce:
             return responce
     except Exception as e:
