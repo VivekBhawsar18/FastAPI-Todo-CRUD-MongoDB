@@ -95,13 +95,13 @@ async def create_new_todo(todo: Todo):
 
 # Update todo by title
 @app.put("/api/todo/update/{title}", response_model=Todo)
-async def update_todo_by_title(title , todo:Todo):
+async def update_todo_by_title(todo:Todo):
     try:
-        responce = await update_todo(title , todo.description)
-        if responce:
-            return responce
+        response = await update_todo(todo.title , todo.description)
+        if response:
+            return response
     except Exception as e:
-        raise HTTPException(404 , f"There is no todo with the title {title} . {e}")
+        raise HTTPException(404 , f"There is no todo with the title {todo.title} . {e}")
 
 # Delete todo by title
 @app.delete("/api/todo/delete/{title}")
