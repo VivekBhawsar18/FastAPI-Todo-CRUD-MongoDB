@@ -2,7 +2,7 @@ from fastapi.responses import HTMLResponse
 import motor.motor_asyncio
 import os
 from model import Todo
-
+from bson import ObjectId
 
 conn_string = os.getenv("MONGODB_CONNECTION_STRING")
 
@@ -46,15 +46,34 @@ async def create_todo(todo):
     return document
 
 
-async def update_todo(title , desc):
-    await collection.update_one({"title" : title} , {"$set" : {"description" :desc}})
-    documnet = await collection.find_one({"title" : title})
-    return documnet
+# async def update_todo(title , desc):
+#     await collection.update_one({"title" : title} , {"$set" : {"description" :desc}})
+#     documnet = await collection.find_one({"title" : title})
+#     return documnet
 
+async def update_todo(id: int, title: str, desc: str):
+    # Convert ID to ObjectId if using MongoDB
+    object_id = ObjectId(id)
+    # Update the todo by ID
+    await collection.update_one(
+        {"_id": object_id},
+        {"$set": {"title": title, "description": desc}}
+    )
+    # Fetch the updated document
+    document = await collection.find_one({"_id": object_id})
+    return document
 
-async def delete_todo(title):
-    result = await collection.delete_one({"title": title})
-    if result.deleted_count == 1:
-        return True
-    else:
-        return False
+# async def delete_todo(title):
+#     result = await collection.delete_one({"title": title})
+#     if result.deleted_count == 1:
+#         return True
+#     else:
+#         return False
+
+async def delete_todo(id: int) -> bool:
+    # Convert ID to ObjectId if using MongoDB
+    object_id = ObjectId(id)
+    # Delete the todo by ID
+    result = await collection.delete_one({"_id": object_id})
+    # Return True if a document was deleted
+    return result.deleted_count == 1

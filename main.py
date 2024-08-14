@@ -46,8 +46,8 @@ async def root():
             <p><strong>/api/todo/{title}</strong>: Get a todo by its title.</p>
             <p><strong>/api/todos</strong>: Get all todos.</p>
             <p><strong>/api/todo</strong>: Create a new todo.</p>
-            <p><strong>/api/todo/update/{title}</strong>: Update a todo by its title.</p>
-            <p><strong>/api/todo/delete/{title}</strong>: Delete a todo by its title.</p>
+            <p><strong>/api/todo/update/{id}</strong>: Update a todo by its ID.</p>
+            <p><strong>/api/todo/delete/{id}</strong>: Delete a todo by its ID.</p>
         </body>
     </html>
     """
@@ -94,23 +94,49 @@ async def create_new_todo(todo: Todo):
         raise HTTPException(status_code=500 , detail=str(e))
 
 # Update todo by title
-@app.put("/api/todo/update/{title}", response_model=Todo)
-async def update_todo_by_title(todo:Todo):
+# @app.put("/api/todo/update/{title}", response_model=Todo)
+# async def update_todo_by_title(todo:Todo):
+#     try:
+#         response = await update_todo(todo.title , todo.description)
+#         if response:
+#             return response
+#     except Exception as e:
+#         raise HTTPException(404 , f"There is no todo with the title {todo.title} . {e}")
+
+# Update todo by ID
+@app.put("/api/todo/update/{id}", response_model=Todo)
+async def update_todo_by_id(id: int, todo: Todo):
     try:
-        response = await update_todo(todo.title , todo.description)
+        # Call a function to update the todo by ID
+        response = await update_todo(id, todo.title, todo.description)
         if response:
             return response
+        else:
+            raise HTTPException(status_code=404, detail=f"Todo with ID {id} not found.")
     except Exception as e:
-        raise HTTPException(404 , f"There is no todo with the title {todo.title} . {e}")
+        raise HTTPException(status_code=500, detail=f"Error updating todo: {e}")
 
 # Delete todo by title
-@app.delete("/api/todo/delete/{title}")
-async def delete_todo_by_title(title: str):
+# @app.delete("/api/todo/delete/{title}")
+# async def delete_todo_by_title(title: str):
+#     try:
+#         deleted = await delete_todo(title)
+#         if deleted:
+#             return {"message": f"Todo with title '{title}' deleted successfully"}
+#         else:
+#             raise HTTPException(status_code=404, detail=f"No todo found with title: {title}")
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=f"An error occurred while deleting todo: {str(e)}")
+
+# Delete todo by ID
+@app.delete("/api/todo/delete/{id}")
+async def delete_todo_by_id(id: int):
     try:
-        deleted = await delete_todo(title)
+        # Call the function to delete a todo by ID
+        deleted = await delete_todo(id)
         if deleted:
-            return {"message": f"Todo with title '{title}' deleted successfully"}
+            return {"message": f"Todo with ID '{id}' deleted successfully"}
         else:
-            raise HTTPException(status_code=404, detail=f"No todo found with title: {title}")
+            raise HTTPException(status_code=404, detail=f"No todo found with ID: {id}")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred while deleting todo: {str(e)}")
